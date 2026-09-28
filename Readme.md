@@ -1,4 +1,4 @@
-# RouteX — Computer Networks Course Project
+# RouteX — Computer Networks Project
 
 ## Private Network Service Platform — Phase 1
 
