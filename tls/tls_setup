@@ -1,0 +1,74 @@
+# TLS Setup
+
+## Domain
+
+`app.routex.test`
+
+## HTTPS Configuration
+
+Nginx is configured to listen on HTTPS port `8443`.
+
+The TLS certificate is configured in the Nginx configuration for:
+
+`app.routex.test`
+
+## Certificate Files
+
+The certificate and private key are stored locally on the Nginx machine.
+
+The private key is **NOT** included in the GitHub repository.
+
+Certificate file:
+
+```text
+/opt/homebrew/etc/nginx/certs/routex.crt
+
+Private key file:
+
+/opt/homebrew/etc/nginx/certs/routex.key
+Verification
+
+HTTPS was tested using:
+
+curl -i https://app.routex.test:8443/api/status
+
+The response returned:
+
+HTTP/1.1 200 OK
+
+The response also contains:
+
+X-Backend: A
+
+or:
+
+X-Backend: B
+
+This confirms that HTTPS is successfully terminating at Nginx and requests are being forwarded to the backend servers.
+
+TLS Handshake
+
+The TLS communication was observed using Wireshark.
+
+The captured TLS traffic includes:
+
+ClientHello
+ServerHello
+Certificate
+Change Cipher Spec
+Encrypted Application Data
+
+The final HTTPS verification was performed without using the -k certificate-validation bypass.
+
+
+### Your `tls/` folder
+
+```text
+tls/
+├── README.md
+└── .gitignore
+.gitignore
+*.key
+*.pem
+*.crt
+*.csr
