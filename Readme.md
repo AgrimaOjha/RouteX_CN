@@ -47,9 +47,9 @@ private Wi-Fi/LAN. No cloud infrastructure is used.
                                   ▼
                     ┌─────────────────────────┐
                     │     AGRIMA — Mac 1      │
-                    │     Private DNS Server   │
-                    │        10.7.25.7         │
-                    │         dnsmasq           │
+                    │     Private DNS Server  │
+                    │        10.7.25.7        │
+                    │         dnsmasq         │
                     └────────────┬────────────┘
                                  │
                     app.routex.test
@@ -59,9 +59,9 @@ private Wi-Fi/LAN. No cloud infrastructure is used.
                                  ▼
                     ┌─────────────────────────┐
                     │     SUHANI — Mac 2      │
-                    │     nginx Edge / LB      │
-                    │        10.7.8.7          │
-                    │         HTTPS :8443      │
+                    │     nginx Edge / LB     │
+                    │        10.7.8.7         │
+                    │         HTTPS :8443     │
                     └────────────┬────────────┘
                                  │
                        Round-Robin Load
