@@ -1,0 +1,11 @@
+# RouteX Private DNS Configuration
+
+domain-needed
+bogus-priv
+
+# RouteX application
+address=/app.routex.test/10.7.8.7
+address=/api.routex.test/10.7.8.7
+
+# Forward external DNS queries
+server=8.8.8.8
