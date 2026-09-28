@@ -1,1 +1,12 @@
-
+{
+  "name": "routex-backend-a",
+  "version": "1.0.0",
+  "description": "RouteX Backend A",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
