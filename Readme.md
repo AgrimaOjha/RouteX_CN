@@ -1,151 +1,159 @@
-# 🚀 RouteX — Network Infrastructure & High Availability
+# RouteX — Network Infrastructure & High Availability
 
-<p align="center">
-  <strong>A Computer Networks Project</strong><br>
-  DNS • Reverse Proxy • Load Balancing • HTTPS • Caching • Fault Tolerance
-</p>
+<div align="center">
 
-<p align="center">
-  ![Project](https://img.shields.io/badge/Project-RouteX-blue?style=for-the-badge)
-  ![Platform](https://img.shields.io/badge/Platform-macOS-lightgrey?style=for-the-badge)
-  ![Networking](https://img.shields.io/badge/Domain-Computer%20Networks-purple?style=for-the-badge)
-</p>
+### A Multi-Machine Network Infrastructure Implementation
 
----
+![Networking](https://img.shields.io/badge/Domain-Computer%20Networks-blue)
+![DNS](https://img.shields.io/badge/Service-Private%20DNS-green)
+![Nginx](https://img.shields.io/badge/Reverse%20Proxy-Nginx-orange)
+![HTTPS](https://img.shields.io/badge/Security-HTTPS%20%2F%20TLS-purple)
+![High Availability](https://img.shields.io/badge/Architecture-High%20Availability-red)
 
-## 📌 Table of Contents
+**Computer Networks — Semester Project**
 
-- [About the Project](#-about-the-project)
-- [Project Objectives](#-project-objectives)
-- [Network Architecture](#-network-architecture)
-- [Machine and Service Configuration](#-machine-and-service-configuration)
-- [Technology Stack](#-technology-stack)
-- [Phase 1 — Core Implementation](#-phase-1--core-implementation)
-- [Phase 2 — Advanced Extensions](#-phase-2--advanced-extensions)
-- [Ports and Services](#-ports-and-services)
-- [Testing and Verification](#-testing-and-verification)
-- [Project Structure](#-project-structure)
-- [Known Limitations and Pending Verification](#-known-limitations-and-pending-verification)
-- [Conclusion](#-conclusion)
+</div>
 
 ---
 
-## 🌐 About the Project
+## 📌 Project Overview
 
-**RouteX** is a multi-machine network infrastructure project developed as part of a Computer Networks course.
+**RouteX** is a multi-machine network infrastructure project developed as part of the Computer Networks course.
 
-The project demonstrates how multiple machines on a local network can work together to provide a reliable web application infrastructure.
+The project demonstrates how multiple machines connected over a local network can work together to provide a reliable and resilient web application infrastructure.
 
-It combines private DNS, backend servers, an Nginx reverse proxy, HTTPS communication, load balancing, caching, and fault-tolerance mechanisms.
+It combines private DNS configuration, backend server deployment, Nginx reverse proxying, load balancing, HTTPS communication, HTTP caching, and fault-tolerance mechanisms.
 
 The implementation is divided into two phases:
 
-- **Phase 1 — Core Implementation:** Establishing the network infrastructure and making the application accessible through a domain name.
-- **Phase 2 — Advanced Extensions:** Improving availability, resilience, service isolation, DNS behaviour, and troubleshooting capabilities.
-
----
+- **Phase 1:** Establishment of the core network infrastructure and application services.
+- **Phase 2:** Implementation of advanced extensions focusing on redundancy, availability, migration, service isolation, and troubleshooting.
 
 ## 🎯 Project Objectives
 
-The main objectives of RouteX are to:
+- To establish communication between multiple machines on a local network.
+- To configure a private DNS service for domain-name resolution.
+- To deploy two independent backend servers using Node.js and Express.
+- To configure Nginx as a reverse proxy and load balancer.
+- To enable secure communication using HTTPS and TLS.
+- To implement HTTP caching at the Edge Server.
+- To introduce DNS redundancy and TTL-controlled updates.
+- To demonstrate backend and Edge Server failover.
+- To restrict unauthorised direct access to backend services.
+- To analyse network communication using Wireshark.
+- To troubleshoot failures across different network layers.
 
-- Establish communication between multiple machines on a local network.
-- Configure a private DNS service for domain-name resolution.
-- Deploy two independent backend servers.
-- Configure Nginx as a reverse proxy and load balancer.
-- Enable HTTPS using TLS certificates.
-- Implement HTTP caching.
-- Introduce DNS redundancy and controlled DNS updates.
-- Demonstrate backend and edge-server failover.
-- Restrict direct backend access.
-- Analyse network communication and troubleshoot failures.
+## ⚙️ Network Configuration
 
----
-
-## 🏗️ Network Architecture
-
-RouteX follows a distributed architecture in which different machines perform dedicated network roles.
-
-```text
-                         CLIENT MACHINES
-                               |
-                               |
-                         Private DNS
-                        10.7.2.153
-                               |
-                               |
-                       app.routex.test
-                               |
-                               |
-                    PRIMARY EDGE SERVER
-                       10.7.30.238
-                         Nginx :8443
-                               |
-                       Reverse Proxy
-                       Load Balancing
-                               |
-                  +------------+------------+
-                  |                         |
-                  |                         |
-             BACKEND A                 BACKEND B
-             10.7.9.69                10.7.31.40
-              Node.js                   Node.js
-              Port 3001                 Port 3002
-```
-
-A standby Edge Server is also configured on the Backend A machine for the Edge migration extension.
-
-> **Note:** The Backup DNS server is part of the project architecture. Its final IP address should be added to the machine inventory once confirmed.
-
----
-
-## 🖥️ Machine and Service Configuration
-
-| Team Member | Machine Role | IP Address | Service |
-|---|---|---|---|
-| Agrima | Primary DNS | `10.7.2.153` | dnsmasq |
-| Suhani | Primary Edge Server | `10.7.30.238` | Nginx |
-| Khyati | Backend A + Standby Edge | `10.7.9.69` | Node.js + Nginx |
-| Khushi | Backend B | `10.7.31.40` | Node.js |
+| Component | Configuration |
+|---|---|
+| Network Type | Local Area Network (LAN) |
+| Primary DNS | `10.7.2.153` |
+| Primary Edge Server | `10.7.30.238` |
+| Backend A | `10.7.9.69` |
+| Backend B | `10.7.31.40` |
+| Standby Edge Server | `10.7.9.69` |
+| DNS Service | dnsmasq |
+| Reverse Proxy | Nginx |
+| Backend Framework | Node.js + Express |
+| HTTPS Port | `8443` |
+| Backend A Port | `3001` |
+| Backend B Port | `3002` |
+| DNS TTL | 30 seconds |
 
 ### Domain Configuration
 
-| Domain | Purpose | Configuration |
-|---|---|---|
-| `app.routex.test` | Main application | Primary Edge Server |
-| `api.routex.test` | API endpoint | Add confirmed DNS mapping |
-
-The primary DNS server uses dnsmasq, with the main application domain configured to resolve to `10.7.30.238`.
-
-The DNS record uses a TTL of **30 seconds** to support controlled DNS updates and migration testing.
-
----
-
-## 🛠️ Technology Stack
-
-| Technology | Purpose |
+| Domain | Purpose |
 |---|---|
-| macOS | Operating system |
-| dnsmasq | Private DNS service |
-| Nginx | Reverse proxy and load balancer |
-| Node.js | Backend runtime |
-| Express.js | Backend application framework |
-| HTTPS / TLS | Secure communication |
-| cURL | HTTP and HTTPS testing |
-| dig | DNS verification |
-| netcat (`nc`) | TCP connectivity testing |
-| Wireshark | Network packet analysis |
+| `app.routex.test` | Main application domain |
+| `api.routex.test` | API domain |
 
----
+The primary DNS server is configured using dnsmasq. The main application domain initially resolves to the Primary Edge Server at `10.7.30.238`.
+
+> **Note:** The final `api.routex.test` mapping and Backup DNS IP should be added after confirming their configured values.
+
+## 🏗️ System Architecture
+
+RouteX follows a distributed architecture in which each machine performs a dedicated role.
+
+### Main Components
+
+| Component | IP Address | Description |
+|---|---|---|
+| Primary DNS | `10.7.2.153` | Resolves application domains using dnsmasq. |
+| Primary Edge | `10.7.30.238` | Handles incoming HTTPS requests through Nginx. |
+| Backend A | `10.7.9.69` | Hosts the first Node.js backend on port 3001. |
+| Backend B | `10.7.31.40` | Hosts the second Node.js backend on port 3002. |
+| Standby Edge | `10.7.9.69` | Provides an alternative Edge Server for migration testing. |
+
+### Request Flow
+
+```text
+                     CLIENT MACHINES
+                            |
+                            |
+                      PRIVATE DNS
+                       10.7.2.153
+                            |
+                            |
+                    app.routex.test
+                            |
+                            |
+                   PRIMARY EDGE SERVER
+                      10.7.30.238
+                       Nginx :8443
+                            |
+                     Reverse Proxy
+                     Load Balancing
+                            |
+                +-----------+-----------+
+                |                       |
+                |                       |
+           BACKEND A               BACKEND B
+           10.7.9.69              10.7.31.40
+            Node.js                 Node.js
+            Port 3001               Port 3002
+```
+
+### Backend Services
+
+Both backend servers are implemented using Node.js and Express.
+
+| Backend | IP Address | Port | Framework |
+|---|---|---:|---|
+| Backend A | `10.7.9.69` | 3001 | Express.js |
+| Backend B | `10.7.31.40` | 3002 | Express.js |
+
+Each backend provides:
+
+- A root endpoint (`/`).
+- An API status endpoint (`/api/status`).
+- JSON responses indicating backend status.
+- An `X-Backend` response header to identify the responding backend.
+
+### Nginx Reverse Proxy
+
+Nginx acts as the main entry point for incoming application traffic.
+
+The configured upstream contains both backend servers:
+
+```nginx
+upstream routex_backends {
+    server 10.7.9.69:3001;
+    server 10.7.31.40:3002;
+}
+```
+
+This allows Nginx to distribute incoming requests across the backend pool.
 
 ## 🔵 Phase 1 — Core Implementation
 
-Phase 1 focuses on building the basic RouteX infrastructure.
+Phase 1 focuses on establishing the basic network infrastructure and making the application accessible through a domain name.
 
 ### Task A — LAN Setup and Connectivity
 
 - Connected the participating machines to the same local network.
-- Assigned and identified the IP addresses of the machines.
+- Identified and configured machine IP addresses.
 - Verified connectivity between machines using `ping`.
 - Established the network topology and machine roles.
 
@@ -157,10 +165,10 @@ ping <IP_ADDRESS>
 
 ### Task B — Private DNS Configuration
 
-- Configured dnsmasq as the primary private DNS server.
-- Added the application domain `app.routex.test`.
-- Configured DNS resolution for the participating client machines.
-- Used a TTL of 30 seconds for DNS update testing.
+- Configured dnsmasq as the Primary DNS server.
+- Added the `app.routex.test` domain record.
+- Configured DNS resolution for participating client machines.
+- Set the DNS TTL to 30 seconds.
 
 **Verification command:**
 
@@ -170,23 +178,12 @@ dig @10.7.2.153 app.routex.test
 
 ### Task C — Backend Server Deployment
 
-Two independent backend servers were developed using Node.js and Express.
+- Developed Backend A using Node.js and Express on port `3001`.
+- Developed Backend B using Node.js and Express on port `3002`.
+- Implemented the root and API status endpoints.
+- Added backend-identifying response headers.
 
-| Backend | IP Address | Port |
-|---|---|---|
-| Backend A | `10.7.9.69` | `3001` |
-| Backend B | `10.7.31.40` | `3002` |
-
-Both backends provide:
-
-- A root endpoint (`/`).
-- An API status endpoint (`/api/status`).
-- Backend-identifying response headers.
-- JSON responses indicating backend status.
-
-The `X-Backend` response header identifies which backend handled a request.
-
-**Example testing commands:**
+**Testing commands:**
 
 ```bash
 curl http://10.7.9.69:3001/
@@ -202,22 +199,10 @@ curl http://10.7.9.69:3001/api/status
 
 ### Task D — Reverse Proxy and Load Balancing
 
-Nginx was configured on the Primary Edge Server to act as:
-
-- A reverse proxy between clients and backend servers.
-- A load balancer distributing requests between Backend A and Backend B.
-- The main entry point for application traffic.
-
-The upstream configuration includes both backend servers:
-
-```nginx
-upstream routex_backends {
-    server 10.7.9.69:3001;
-    server 10.7.31.40:3002;
-}
-```
-
-This allows incoming application requests to be forwarded to the configured backend pool.
+- Configured Nginx on the Primary Edge Server.
+- Created an upstream group containing Backend A and Backend B.
+- Configured Nginx to forward incoming application requests.
+- Enabled load distribution across the backend servers.
 
 ### Task E — HTTPS and TLS Configuration
 
@@ -232,70 +217,54 @@ This allows incoming application requests to be forwarded to the configured back
 curl -k -Iv https://app.routex.test:8443/
 ```
 
-The `-k` option allows testing with the project's self-signed certificate without requiring the client to trust it.
-
 ### Task F — HTTP Caching
 
-HTTP caching was configured at the Edge Server.
+- Configured HTTP caching-related response headers at the Edge Server.
+- Added a cache freshness lifetime of 60 seconds.
 
-The response headers include:
+The observed response header is:
 
 ```http
 Cache-Control: max-age=60
 ```
 
-This specifies a cache freshness lifetime of 60 seconds.
-
-Caching is intended to reduce repeated backend requests and improve response efficiency.
-
 ### Task G — Network Packet Analysis
 
-Wireshark was used as the network analysis tool for examining communication between the machines.
+Wireshark was used to examine network communication and protocol behaviour.
 
-The relevant protocols and traffic include:
+The analysis focuses on:
 
 - DNS queries and responses.
 - TCP connection establishment.
 - TLS handshake communication.
 - HTTP request and response traffic.
 
-Useful Wireshark display filters:
+**Useful Wireshark filters:**
 
 ```text
 dns
-```
-
-```text
 tcp
-```
-
-```text
 tls
-```
-
-```text
 http
 ```
 
----
-
 ## 🟣 Phase 2 — Advanced Extensions
 
-Phase 2 extends the core infrastructure by introducing redundancy, controlled migration, service isolation, and fault-tolerance mechanisms.
+Phase 2 focuses on improving the reliability, availability, and fault tolerance of the RouteX infrastructure.
 
 ### Extension A — Backup DNS and Redundancy
 
 This extension introduces a secondary DNS server to improve DNS availability.
 
-The intended behaviour is:
+The intended implementation includes:
 
-- Configure a Backup DNS server.
-- Provide the required DNS records on the backup.
-- Configure clients to use the backup DNS server when appropriate.
-- Stop the Primary DNS service.
-- Verify that DNS resolution continues through the Backup DNS server.
+- Configuring a Backup DNS server.
+- Maintaining the required DNS records on the backup.
+- Configuring clients to use the backup DNS server.
+- Stopping the Primary DNS service.
+- Verifying DNS resolution through the Backup DNS server.
 
-**Example verification command:**
+**Verification command:**
 
 ```bash
 dig @<BACKUP_DNS_IP> app.routex.test
@@ -324,85 +293,89 @@ dig @10.7.2.153 app.routex.test
 
 This extension focuses on restricting direct access to backend services.
 
-The intended network behaviour is:
+The intended behaviour includes:
 
-- Backend services should accept application traffic through authorised Edge Servers.
-- Direct client access to backend ports should be restricted.
-- Backend access should be verified from both permitted and non-permitted sources.
+- Allowing backend traffic from authorised Edge Servers.
+- Restricting direct client access to backend ports.
+- Verifying access from permitted and non-permitted sources.
 
 The current backend implementation includes an application-level IP allowlist.
 
-> Application-level access restrictions are not equivalent to operating-system firewall rules. OS-level firewall enforcement should be separately configured and verified if required by the project evaluation.
+**Note:** Application-level access control is different from operating-system firewall enforcement. Separate firewall rules must be configured and verified if required.
 
 ### Extension D — Backend High Availability
 
 This extension demonstrates continued application availability when one backend becomes unavailable.
 
-The expected behaviour is:
+The process involves:
 
-- Both Backend A and Backend B are initially available.
-- Stop Backend A.
-- Send application requests through the Edge Server.
-- Verify that Backend B continues serving requests.
-- Restore Backend A and verify normal operation.
-
-This demonstrates backend resilience through the configured Nginx upstream.
+1. Starting Backend A and Backend B.
+2. Sending requests through the Primary Edge Server.
+3. Stopping Backend A.
+4. Verifying that Backend B continues serving requests.
+5. Restoring Backend A and checking normal operation.
 
 ### Extension E — Controlled Edge Server Migration
 
-This extension demonstrates migration from the Primary Edge Server to a Standby Edge Server.
+This extension demonstrates migration from the Primary Edge Server to the Standby Edge Server.
 
-The process involves:
-
-1. Configure the Standby Edge Server.
-2. Verify that the standby service is accessible.
-3. Update the DNS record to point to the standby machine.
-4. Test application access after the DNS change.
-5. Observe the effect of DNS TTL and client-side caching.
-6. Restore the DNS record to the Primary Edge Server.
-
-For RouteX, the migration was tested using:
-
-| Role | IP Address |
+| Edge Server | IP Address |
 |---|---|
 | Primary Edge | `10.7.30.238` |
 | Standby Edge | `10.7.9.69` |
+
+The migration process involves:
+
+1. Configuring the Standby Edge Server.
+2. Verifying that the standby service is accessible.
+3. Updating the DNS record to point to the standby machine.
+4. Testing application access after the DNS change.
+5. Observing DNS TTL and client-side caching behaviour.
+6. Restoring the DNS record to the Primary Edge Server.
 
 The primary DNS record was restored to `10.7.30.238` after the migration test.
 
 ### Extension F — Troubleshooting and Fault Diagnosis
 
-This extension focuses on identifying and resolving network and service failures.
+This extension focuses on identifying and resolving failures across different network layers.
 
-The troubleshooting process is divided into layers:
-
-| Layer | What to Verify | Useful Tool |
+| Layer | Verification | Tool |
 |---|---|---|
-| DNS | Domain resolves to the expected IP | `dig` |
-| Network | Machines can communicate | `ping` |
-| TCP | Required service port is reachable | `nc` |
-| TLS | HTTPS handshake succeeds | `curl` |
-| Application | Backend returns the expected response | `curl` |
-| Proxy | Nginx forwards requests correctly | Nginx logs |
+| DNS | Domain-name resolution | `dig` |
+| Network | Machine connectivity | `ping` |
+| TCP | Port reachability | `nc` |
+| TLS | Secure connection handshake | `curl` |
+| Application | Backend response | `curl` |
+| Reverse Proxy | Request forwarding | Nginx logs |
 
-The objective is to identify the layer responsible for a failure rather than changing multiple configurations without isolating the problem.
+The objective is to isolate the source of a failure systematically instead of changing multiple configurations without identifying the underlying problem.
 
----
+## 💻 Technologies and Tools Used
+
+- **macOS** — Operating system for the participating machines.
+- **dnsmasq** — Private DNS server.
+- **Nginx** — Reverse proxy and load balancer.
+- **Node.js** — Backend runtime environment.
+- **Express.js** — Backend application framework.
+- **HTTPS / TLS** — Secure communication.
+- **cURL** — HTTP and HTTPS testing.
+- **dig** — DNS resolution testing.
+- **Netcat** — TCP connectivity testing.
+- **Wireshark** — Network packet analysis.
+- **Git and GitHub** — Version control and project collaboration.
 
 ## 🔌 Ports and Services
 
 | Service | Port | Machine |
 |---|---:|---|
-| Backend A | `3001` | `10.7.9.69` |
-| Backend B | `3002` | `10.7.31.40` |
-| Primary Edge HTTPS | `8443` | `10.7.30.238` |
-| DNS | `53` | `10.7.2.153` |
-
----
+| DNS | 53 | `10.7.2.153` |
+| Backend A | 3001 | `10.7.9.69` |
+| Backend B | 3002 | `10.7.31.40` |
+| Primary Edge HTTPS | 8443 | `10.7.30.238` |
 
 ## 🧪 Testing and Verification
 
-The following commands can be used during testing and demonstration.
+The following commands were used during implementation and testing.
 
 ### 1. DNS Resolution
 
@@ -410,21 +383,19 @@ The following commands can be used during testing and demonstration.
 dig @10.7.2.153 app.routex.test
 ```
 
-### 2. TCP Port Connectivity
+### 2. TCP Connectivity
 
 ```bash
 nc -vz 10.7.30.238 8443
 ```
 
-### 3. HTTPS Request
+### 3. HTTPS Connection
 
 ```bash
 curl -k -Iv https://app.routex.test:8443/
 ```
 
-### 4. Test HTTPS Using a Specific Edge IP
-
-If the client DNS resolver is not resolving the domain correctly, `--resolve` can be used to test the Edge Server directly while preserving the hostname for TLS:
+### 4. HTTPS Testing with a Specific Edge IP
 
 ```bash
 curl -k -Iv \
@@ -432,7 +403,7 @@ curl -k -Iv \
   https://app.routex.test:8443/
 ```
 
-### 5. Backend Testing
+### 5. Backend Connectivity
 
 ```bash
 curl http://10.7.9.69:3001/
@@ -442,17 +413,13 @@ curl http://10.7.9.69:3001/
 curl http://10.7.31.40:3002/
 ```
 
-### 6. Inspect Response Headers
+### 6. Response Header Inspection
 
 ```bash
 curl -k -I https://app.routex.test:8443/
 ```
 
----
-
-## 📁 Project Structure
-
-A suggested repository structure:
+## 📂 Repository Structure
 
 ```text
 RouteX/
@@ -487,38 +454,50 @@ RouteX/
     └── wireshark-captures/
 ```
 
-*This is a suggested organisation. Update it to match the actual files in the repository.*
+*The above is a suggested repository structure. Update it according to the actual files maintained in the project.*
+
+## ⚠️ Current Scope and Limitations
+
+- The configured TLS certificate is self-signed. Testing with `curl -k` verifies connectivity but does not establish that the certificate is trusted by browsers or clients.
+- Backend access restriction currently includes an application-level IP allowlist. OS-level firewall restrictions require separate configuration and verification.
+- The `Cache-Control` response header is present, but an actual cache hit or `304 Not Modified` response should be demonstrated separately.
+- DNS queries directed to the Primary DNS server succeeded, but default system resolver behaviour was not consistent on every tested client.
+- The Backup DNS server's final IP and failover results should be added after verification.
+- The final `api.routex.test` DNS mapping should be documented once confirmed.
+- Wireshark screenshots or capture files should be included as evidence of protocol analysis.
+- Any extension not fully tested should be marked as pending verification rather than reported as completed.
+
+## 🔮 Future Improvements
+
+- Configure and verify complete Backup DNS failover.
+- Establish trusted TLS certificates for warning-free client access.
+- Implement and verify OS-level backend firewall restrictions.
+- Capture and demonstrate HTTP cache hits or `304 Not Modified` responses.
+- Improve client-side DNS resolver configuration.
+- Expand network monitoring and automated fault detection.
+- Maintain complete packet captures and test evidence.
+
+## 📚 Project Documentation
+
+The project documentation and evidence should include:
+
+- Network architecture and topology diagram.
+- Machine IP and service configuration.
+- DNS and Nginx configuration files.
+- Backend source code.
+- Phase 1 and Phase 2 implementation details.
+- Terminal screenshots and testing outputs.
+- Wireshark packet captures.
+- Final project report and demonstration evidence.
 
 ---
 
-## ⚠️ Known Limitations and Pending Verification
+<div align="center">
 
-The following points should be considered when evaluating the implementation:
+### ROUTEX
 
-- The configured TLS certificate is self-signed. A successful test using `curl -k` does not establish that the certificate is trusted by a browser or client.
-- The backend allowlist is implemented at the application level. Separate OS-level firewall restrictions need independent verification.
-- The `Cache-Control` header is configured, but an actual cache hit or HTTP `304 Not Modified` response should be captured before claiming that caching behaviour has been fully demonstrated.
-- Successful DNS queries directed to the Primary DNS server do not necessarily prove that every client's default system resolver is configured correctly.
-- The Backup DNS server's final IP and its failover test results should be documented once confirmed.
-- The final `api.routex.test` DNS mapping should be added after verifying its configured value.
-- Wireshark screenshots or capture files should be included as evidence of the relevant protocol exchanges.
-- Any extension not yet tested should be marked as pending rather than reported as successfully completed.
+**Designed and implemented as a multi-machine network infrastructure**
 
----
+*Computer Networks — Semester Project*
 
-## 🎓 Conclusion
-
-RouteX demonstrates the practical application of Computer Networks concepts through a distributed, multi-machine infrastructure.
-
-By combining private DNS, backend services, Nginx reverse proxying, load balancing, HTTPS, caching, and redundancy mechanisms, the project explores how real-world web infrastructure is configured, tested, and maintained.
-
-The two project phases provide experience in both establishing a working network architecture and improving its reliability through fault tolerance, controlled migration, service isolation, and systematic troubleshooting.
-
-**RouteX brings together networking concepts and practical implementation to demonstrate a more reliable and resilient application infrastructure.**
-
----
-
-<p align="center">
-  <strong>Made with 💻 by Team RouteX</strong><br>
-  <sub>Computer Networks Project</sub>
-</p>
+</div>
