@@ -4,7 +4,7 @@ const app = express();
 const PORT = 3002;
 
 app.get("/", (req, res) => {
-  res.set("X-Backe", "B");
+  res.set("X-Backend", "B");
   res.set("Cache-Control", "max-age=60");
 
   res.json({
