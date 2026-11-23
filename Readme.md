@@ -12,6 +12,8 @@
 
 **Computer Networks — Semester Project**
 
+**Newton School of Technology | Third Year**
+
 </div>
 
 ---
@@ -32,7 +34,7 @@ The implementation is divided into two phases:
 ## 🎯 Project Objectives
 
 - To establish communication between multiple machines on a local network.
-- To configure a private DNS service for domain-name resolution.
+- To configure primary and backup private DNS services for domain-name resolution.
 - To deploy two independent backend servers using Node.js and Express.
 - To configure Nginx as a reverse proxy and load balancer.
 - To enable secure communication using HTTPS and TLS.
@@ -49,6 +51,7 @@ The implementation is divided into two phases:
 |---|---|
 | Network Type | Local Area Network (LAN) |
 | Primary DNS | `10.7.2.153` |
+| Backup DNS | `10.7.30.238` |
 | Primary Edge Server | `10.7.30.238` |
 | Backend A | `10.7.9.69` |
 | Backend B | `10.7.31.40` |
@@ -57,9 +60,21 @@ The implementation is divided into two phases:
 | Reverse Proxy | Nginx |
 | Backend Framework | Node.js + Express |
 | HTTPS Port | `8443` |
+| DNS Port | `53` |
 | Backend A Port | `3001` |
 | Backend B Port | `3002` |
 | DNS TTL | 30 seconds |
+
+### Machine and Service Allocation
+
+| Team Member | IP Address | Role |
+|---|---|---|
+| Agrima | `10.7.2.153` | Primary DNS using dnsmasq |
+| Suhani | `10.7.30.238` | Primary Edge using Nginx and Backup DNS |
+| Khyati | `10.7.9.69` | Backend A and Standby Edge using Nginx |
+| Khushi | `10.7.31.40` | Backend B |
+
+**Important:** The Backup DNS service is hosted on Suhani's machine at `10.7.30.238`, which also hosts the Primary Edge Server. Both services have separate roles but share the same machine and IP address.
 
 ### Domain Configuration
 
@@ -68,9 +83,11 @@ The implementation is divided into two phases:
 | `app.routex.test` | Main application domain |
 | `api.routex.test` | API domain |
 
-The primary DNS server is configured using dnsmasq. The main application domain initially resolves to the Primary Edge Server at `10.7.30.238`.
+The Primary DNS server is configured using dnsmasq. The main application domain resolves to the Primary Edge Server at `10.7.30.238`.
 
-> **Note:** The final `api.routex.test` mapping and Backup DNS IP should be added after confirming their configured values.
+The Backup DNS service is hosted on Suhani's machine and provides an alternative DNS service for application domain resolution.
+
+> **Note:** The final `api.routex.test` DNS mapping should be documented after confirming its configured value.
 
 ## 🏗️ System Architecture
 
@@ -82,6 +99,7 @@ RouteX follows a distributed architecture in which each machine performs a dedic
 |---|---|---|
 | Primary DNS | `10.7.2.153` | Resolves application domains using dnsmasq. |
 | Primary Edge | `10.7.30.238` | Handles incoming HTTPS requests through Nginx. |
+| Backup DNS | `10.7.30.238` | Provides an alternative DNS service for resolving application domains, hosted on Suhani's machine. |
 | Backend A | `10.7.9.69` | Hosts the first Node.js backend on port 3001. |
 | Backend B | `10.7.31.40` | Hosts the second Node.js backend on port 3002. |
 | Standby Edge | `10.7.9.69` | Provides an alternative Edge Server for migration testing. |
@@ -89,31 +107,33 @@ RouteX follows a distributed architecture in which each machine performs a dedic
 ### Request Flow
 
 ```text
-                     CLIENT MACHINES
-                            |
-                            |
-                      PRIVATE DNS
-                       10.7.2.153
-                            |
-                            |
-                    app.routex.test
-                            |
-                            |
-                   PRIMARY EDGE SERVER
-                      10.7.30.238
-                       Nginx :8443
-                            |
-                     Reverse Proxy
-                     Load Balancing
-                            |
-                +-----------+-----------+
-                |                       |
-                |                       |
-           BACKEND A               BACKEND B
-           10.7.9.69              10.7.31.40
-            Node.js                 Node.js
-            Port 3001               Port 3002
+                         CLIENT MACHINES
+                               |
+                 +-------------+-------------+
+                 |                           |
+             PRIMARY DNS                 BACKUP DNS
+             10.7.2.153                  10.7.30.238
+                 |                           |
+                 +-------------+-------------+
+                               |
+                       app.routex.test
+                               |
+                       PRIMARY EDGE SERVER
+                          10.7.30.238
+                           Nginx :8443
+                               |
+                        Reverse Proxy
+                        Load Balancing
+                               |
+                    +----------+----------+
+                    |                     |
+                BACKEND A             BACKEND B
+                10.7.9.69            10.7.31.40
+                 Node.js               Node.js
+                 Port 3001             Port 3002
 ```
+
+The Primary DNS and Backup DNS are alternative DNS services. The diagram represents their roles and does not imply that clients automatically switch between them. The Backup DNS and Primary Edge also share Suhani's machine.
 
 ### Backend Services
 
@@ -169,11 +189,18 @@ ping <IP_ADDRESS>
 - Added the `app.routex.test` domain record.
 - Configured DNS resolution for participating client machines.
 - Set the DNS TTL to 30 seconds.
+- Set up the Backup DNS service on Suhani's machine at `10.7.30.238`.
 
-**Verification command:**
+**Primary DNS verification:**
 
 ```bash
 dig @10.7.2.153 app.routex.test
+```
+
+**Backup DNS verification:**
+
+```bash
+dig @10.7.30.238 app.routex.test
 ```
 
 ### Task C — Backend Server Deployment
@@ -254,21 +281,34 @@ Phase 2 focuses on improving the reliability, availability, and fault tolerance 
 
 ### Extension A — Backup DNS and Redundancy
 
-This extension introduces a secondary DNS server to improve DNS availability.
+This extension introduces a secondary DNS service to improve DNS availability.
 
-The intended implementation includes:
+The DNS services are hosted on the following machines:
 
-- Configuring a Backup DNS server.
-- Maintaining the required DNS records on the backup.
-- Configuring clients to use the backup DNS server.
-- Stopping the Primary DNS service.
-- Verifying DNS resolution through the Backup DNS server.
+| DNS Server | IP Address | Host Machine |
+|---|---|---|
+| Primary DNS | `10.7.2.153` | Agrima |
+| Backup DNS | `10.7.30.238` | Suhani |
 
-**Verification command:**
+The implementation includes:
+
+- Configuring the Primary DNS using dnsmasq.
+- Setting up the Backup DNS service on Suhani's machine.
+- Maintaining the required application domain records.
+- Configuring clients to use the available DNS services.
+- Testing DNS resolution through the respective DNS server addresses.
+
+**Verification commands:**
 
 ```bash
-dig @<BACKUP_DNS_IP> app.routex.test
+dig @10.7.2.153 app.routex.test
 ```
+
+```bash
+dig @10.7.30.238 app.routex.test
+```
+
+The Backup DNS and Primary Edge share the same host machine. Therefore, this arrangement provides an additional DNS service but does not provide independent machine-level redundancy.
 
 ### Extension B — TTL-Controlled DNS Updates
 
@@ -368,7 +408,8 @@ The objective is to isolate the source of a failure systematically instead of ch
 
 | Service | Port | Machine |
 |---|---:|---|
-| DNS | 53 | `10.7.2.153` |
+| Primary DNS | 53 | `10.7.2.153` |
+| Backup DNS | 53 | `10.7.30.238` |
 | Backend A | 3001 | `10.7.9.69` |
 | Backend B | 3002 | `10.7.31.40` |
 | Primary Edge HTTPS | 8443 | `10.7.30.238` |
@@ -377,25 +418,31 @@ The objective is to isolate the source of a failure systematically instead of ch
 
 The following commands were used during implementation and testing.
 
-### 1. DNS Resolution
+### 1. Primary DNS Resolution
 
 ```bash
 dig @10.7.2.153 app.routex.test
 ```
 
-### 2. TCP Connectivity
+### 2. Backup DNS Resolution
+
+```bash
+dig @10.7.30.238 app.routex.test
+```
+
+### 3. TCP Connectivity
 
 ```bash
 nc -vz 10.7.30.238 8443
 ```
 
-### 3. HTTPS Connection
+### 4. HTTPS Connection
 
 ```bash
 curl -k -Iv https://app.routex.test:8443/
 ```
 
-### 4. HTTPS Testing with a Specific Edge IP
+### 5. HTTPS Testing with a Specific Edge IP
 
 ```bash
 curl -k -Iv \
@@ -403,7 +450,7 @@ curl -k -Iv \
   https://app.routex.test:8443/
 ```
 
-### 5. Backend Connectivity
+### 6. Backend Connectivity
 
 ```bash
 curl http://10.7.9.69:3001/
@@ -413,7 +460,7 @@ curl http://10.7.9.69:3001/
 curl http://10.7.31.40:3002/
 ```
 
-### 6. Response Header Inspection
+### 7. Response Header Inspection
 
 ```bash
 curl -k -I https://app.routex.test:8443/
@@ -441,7 +488,8 @@ RouteX/
 │   └── servers/
 │
 ├── dns/
-│   └── dnsmasq.conf
+│   ├── dnsmasq.conf
+│   └── backup-dns.conf
 │
 ├── documentation/
 │   ├── architecture.md
@@ -462,14 +510,15 @@ RouteX/
 - Backend access restriction currently includes an application-level IP allowlist. OS-level firewall restrictions require separate configuration and verification.
 - The `Cache-Control` response header is present, but an actual cache hit or `304 Not Modified` response should be demonstrated separately.
 - DNS queries directed to the Primary DNS server succeeded, but default system resolver behaviour was not consistent on every tested client.
-- The Backup DNS server's final IP and failover results should be added after verification.
+- Backup DNS is hosted on Suhani's machine at `10.7.30.238`, which also hosts the Primary Edge Server. Automatic DNS failover should be verified separately.
 - The final `api.routex.test` DNS mapping should be documented once confirmed.
 - Wireshark screenshots or capture files should be included as evidence of protocol analysis.
 - Any extension not fully tested should be marked as pending verification rather than reported as completed.
 
 ## 🔮 Future Improvements
 
-- Configure and verify complete Backup DNS failover.
+- Verify DNS failover between Primary DNS and Backup DNS.
+- Consider hosting Backup DNS on an independent machine to improve machine-level redundancy.
 - Establish trusted TLS certificates for warning-free client access.
 - Implement and verify OS-level backend firewall restrictions.
 - Capture and demonstrate HTTP cache hits or `304 Not Modified` responses.
@@ -483,7 +532,8 @@ The project documentation and evidence should include:
 
 - Network architecture and topology diagram.
 - Machine IP and service configuration.
-- DNS and Nginx configuration files.
+- Primary and Backup DNS configuration files.
+- Nginx configuration files.
 - Backend source code.
 - Phase 1 and Phase 2 implementation details.
 - Terminal screenshots and testing outputs.
@@ -499,5 +549,7 @@ The project documentation and evidence should include:
 **Designed and implemented as a multi-machine network infrastructure**
 
 *Computer Networks — Semester Project*
+
+**Newton School of Technology | Third Year**
 
 </div>
